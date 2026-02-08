@@ -33,6 +33,14 @@ def mark_done(task_id):
             task["status"] = "done"
     return redirect(url_for("index"))
 
+@app.route("/toggle/<task_id>", methods=["POST"])
+def toggle_task(task_id):
+    for task in tasks:
+        if task["id"] == task_id:
+            task["status"] = "done" if task["status"] != "done" else "pending"
+            break
+    return redirect(url_for("index"))
+
 @app.route("/edit/<task_id>", methods=["POST"])
 def edit_task(task_id):
     new_text = request.form.get("new_text")
@@ -44,4 +52,4 @@ def edit_task(task_id):
     return redirect(url_for("index"))
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True, port=5000)

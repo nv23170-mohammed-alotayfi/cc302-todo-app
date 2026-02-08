@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Study Planner</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+
+<div class="background"></div>
+
+<main class="container">
+  <section class="card">
+    <h1>📚 Study Planner</h1>
+
+    <!-- ADD TASK -->
+    <form action="/add" method="POST" class="task-form">
+      <input name="task" placeholder="Task description" required>
+
+      <input type="date" name="due_date">
+
+      <select name="priority">
+        <option value="low">Low</option>
+        <option value="medium" selected>Medium</option>
+        <option value="high">High</option>
+      </select>
+
+      <button type="submit">Add</button>
+    </form>
+
+    <!-- TASK LIST -->
+    <ul class="task-list">
+      {% for task in tasks %}
+      <li class="task {{ task.priority }} {{ task.status }}">
+
+        <div class="task-main">
+          <span class="task-text">{{ task.text }}</span>
+          {% if task.due_date %}
+            <span class="date">📅 {{ task.due_date }}</span>
+          {% endif %}
+        </div>
+
+        <div class="actions">
+          <form action="/status/{{ task.id }}/done" method="POST">
+            <button>✔</button>
+          </form>
+          <form action="/status/{{ task.id }}/skipped" method="POST">
+            <button>⏭</button>
+          </form>
+          <form action="/status/{{ task.id }}/deleted" method="POST">
+            <button>🗑</button>
+          </form>
+        </div>
+
+      </li>
+      {% endfor %}
+    </ul>
+
+  </section>
+</main>
+
+</body>
+</html>

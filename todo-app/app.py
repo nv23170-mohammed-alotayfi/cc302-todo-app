@@ -7,32 +7,41 @@ tasks = []
 
 @app.route("/")
 def index():
-    visible_tasks = [t for t in tasks if t["status"] != "deleted"]
-    return render_template("index.html", tasks=visible_tasks)
-
+    todo_tasks = [t for t in tasks if t["status"] == "pending"]
+    done_tasks = [t for t in tasks if t["status"] == "done"]
+    return render_template(
+        "index.html",
+        todo_tasks=todo_tasks,
+        done_tasks=done_tasks
+    )
 
 @app.route("/add", methods=["POST"])
 def add_task():
     text = request.form.get("task")
-    due_date = request.form.get("due_date")
-    priority = request.form.get("priority")
-
     if text:
         tasks.append({
             "id": str(uuid.uuid4()),
             "text": text,
-            "due_date": due_date,
-            "priority": priority,
             "status": "pending"
         })
-
     return redirect(url_for("index"))
 
-
-@app.route("/status/<task_id>/<new_status>", methods=["POST"])
-def change_status(task_id, new_status):
+@app.route("/done/<task_id>", methods=["POST"])
+def mark_done(task_id):
     for task in tasks:
         if task["id"] == task_id:
-            task["status"] = new_status
-            break
+            task["status"] = "done"
     return redirect(url_for("index"))
+
+@app.route("/edit/<task_id>", methods=["POST"])
+def edit_task(task_id):
+    new_text = request.form.get("new_text")
+    if new_text:  # Only update if not empty
+        for task in tasks:
+            if task["id"] == task_id:
+                task["text"] = new_text
+                break
+    return redirect(url_for("index"))
+
+if __name__ == "__main__":
+    app.run(debug=True)

@@ -3,62 +3,65 @@
 <head>
   <meta charset="UTF-8">
   <title>Study Planner</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body { font-family: Arial; background:#0f1225; color:white; }
+    h1, h2 { text-align: center; }
+    form { margin: 10px 0; }
+    input { padding:5px; }
+    button { padding:5px 8px; margin-left:5px; cursor:pointer; }
+    ul { list-style:none; padding-left:0; }
+    li { margin-bottom:8px; }
+    .done { text-decoration: line-through; opacity:0.6; }
+  </style>
 </head>
 <body>
 
-<div class="background"></div>
+<h1>📚 Study Planner</h1>
 
-<main class="container">
-  <section class="card">
-    <h1>📚 Study Planner</h1>
+<!-- ADD TASK -->
+<form action="/add" method="POST">
+  <input name="task" placeholder="New task" required>
+  <button type="submit">Add</button>
+</form>
 
-    <!-- ADD TASK -->
-    <form action="/add" method="POST" class="task-form">
-      <input name="task" placeholder="Task description" required>
+<hr>
 
-      <input type="date" name="due_date">
+<!-- TODO TASKS -->
+<h2>📝 Tasks To Do</h2>
+<ul>
+  {% for task in todo_tasks %}
+  <li>
+    <!-- TASK TEXT -->
+    {{ task.text }}
 
-      <select name="priority">
-        <option value="low">Low</option>
-        <option value="medium" selected>Medium</option>
-        <option value="high">High</option>
-      </select>
-
-      <button type="submit">Add</button>
+    <!-- MARK DONE -->
+    <form action="/done/{{ task.id }}" method="POST" style="display:inline;">
+      <button>✔</button>
     </form>
 
-    <!-- TASK LIST -->
-    <ul class="task-list">
-      {% for task in tasks %}
-      <li class="task {{ task.priority }} {{ task.status }}">
+    <!-- EDIT -->
+    <form action="/edit/{{ task.id }}" method="POST" style="display:inline;">
+      <input name="new_text" value="{{ task.text }}" required>
+      <button>✏</button>
+    </form>
+  </li>
+  {% else %}
+  <p>No tasks yet</p>
+  {% endfor %}
+</ul>
 
-        <div class="task-main">
-          <span class="task-text">{{ task.text }}</span>
-          {% if task.due_date %}
-            <span class="date">📅 {{ task.due_date }}</span>
-          {% endif %}
-        </div>
+<hr>
 
-        <div class="actions">
-          <form action="/status/{{ task.id }}/done" method="POST">
-            <button>✔</button>
-          </form>
-          <form action="/status/{{ task.id }}/skipped" method="POST">
-            <button>⏭</button>
-          </form>
-          <form action="/status/{{ task.id }}/deleted" method="POST">
-            <button>🗑</button>
-          </form>
-        </div>
-
-      </li>
-      {% endfor %}
-    </ul>
-
-  </section>
-</main>
+<!-- FINISHED TASKS -->
+<h2>✅ Finished Tasks</h2>
+<ul>
+  {% for task in done_tasks %}
+  <li class="done">{{ task.text }}</li>
+  {% else %}
+  <p>No finished tasks</p>
+  {% endfor %}
+</ul>
 
 </body>
 </html>
